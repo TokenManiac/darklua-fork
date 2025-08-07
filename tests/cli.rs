@@ -265,6 +265,20 @@ fn run_minify_verbose_command() {
 }
 
 #[test]
+fn minify_escapes_hex_followed_by_digit() {
+    Context::default()
+        .write_file("input/init.lua", "print(\"\\x1f8\")\n")
+        .arg("minify")
+        .arg("input")
+        .arg("out")
+        .expect_success()
+        .snapshot_file(
+            "minify_escapes_hex_followed_by_digit",
+            "out/init.lua",
+        );
+}
+
+#[test]
 fn run_process_command() {
     Context::default()
         .write_file("src/init.lua", "return 1 + 1\n")
@@ -287,6 +301,38 @@ fn run_process_verbose_command() {
         .replace_duration_labels()
         .replace_backslashes()
         .snapshot_command("run_process_verbose_command");
+}
+
+#[test]
+fn process_dense_escapes_hex_followed_by_digit() {
+    Context::default()
+        .write_file("in.lua", "print(\"\\x1f8\")\n")
+        .arg("process")
+        .arg("--format")
+        .arg("dense")
+        .arg("in.lua")
+        .arg("out.lua")
+        .expect_success()
+        .snapshot_file(
+            "process_dense_escapes_hex_followed_by_digit",
+            "out.lua",
+        );
+}
+
+#[test]
+fn process_readable_escapes_hex_followed_by_digit() {
+    Context::default()
+        .write_file("in.lua", "print(\"\\x1f8\")\n")
+        .arg("process")
+        .arg("--format")
+        .arg("readable")
+        .arg("in.lua")
+        .arg("out.lua")
+        .expect_success()
+        .snapshot_file(
+            "process_readable_escapes_hex_followed_by_digit",
+            "out.lua",
+        );
 }
 
 #[test]

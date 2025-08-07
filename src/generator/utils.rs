@@ -293,6 +293,19 @@ fn escape(character: char) -> String {
     }
 }
 
+fn escape_with_next(character: char, next: Option<char>) -> String {
+    let mut escaped = escape(character);
+    if let Some(next_char) = next {
+        if next_char.is_ascii_digit()
+            && escaped.chars().nth(1).map_or(false, |c| c.is_ascii_digit())
+            && escaped.len() < 4
+        {
+            escaped = format!("\\{:03}", character as u8);
+        }
+    }
+    escaped
+}
+
 #[inline]
 pub fn count_new_lines(string: &str) -> usize {
     string.chars().filter(|c| *c == '\n').count()
@@ -343,14 +356,16 @@ pub fn write_interpolated_string_segment(segment: &StringSegment) -> String {
 
     result.reserve(value.len());
 
-    for character in value.chars() {
+    let mut characters = value.chars().peekable();
+    while let Some(character) = characters.next() {
         match character {
             '`' | '{' => {
                 result.push('\\');
                 result.push(character);
             }
             _ if needs_escaping(character) => {
-                result.push_str(&escape(character));
+                let escaped = escape_with_next(character, characters.peek().copied());
+                result.push_str(&escaped);
             }
             _ => {
                 result.push(character);
@@ -383,12 +398,14 @@ fn write_quoted(value: &str) -> String {
     let quote_symbol = get_quote_symbol(value);
     quoted.push(quote_symbol);
 
-    for character in value.chars() {
+    let mut characters = value.chars().peekable();
+    while let Some(character) = characters.next() {
         if character == quote_symbol {
             quoted.push('\\');
             quoted.push(quote_symbol);
         } else if needs_escaping(character) {
-            quoted.push_str(&escape(character));
+            let escaped = escape_with_next(character, characters.peek().copied());
+            quoted.push_str(&escaped);
         } else {
             quoted.push(character);
         }
@@ -447,6 +464,7 @@ mod test {
             double_quote("\"") => "'\"'",
             null("\0") => "'\\0'",
             escape("\u{1B}") => "'\\27'",
+            hex_escape_followed_by_digit("\x1f8") => "'\\0318'",
             extended_ascii("\u{C3}") => "'\\u{c3}'",
             unicode("\u{25C1}") => "'\\u{25c1}'",
             escape_degree_symbol("°") => "'\\u{b0}'",
