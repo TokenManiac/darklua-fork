@@ -326,6 +326,52 @@ fn run_process_single_file_custom_config_command_deprecated_config_path() {
 }
 
 #[test]
+fn process_dense_preserves_escape_sequence() {
+    Context::default()
+        .write_file("src/init.lua", "print(\"\\x1f8\")\n")
+        .arg("process")
+        .arg("--format")
+        .arg("dense")
+        .arg("src")
+        .arg("out")
+        .expect_success()
+        .snapshot_file(
+            "process_dense_preserves_escape_sequence_out",
+            "out/init.lua",
+        );
+}
+
+#[test]
+fn process_readable_preserves_escape_sequence() {
+    Context::default()
+        .write_file("src/init.lua", "print(\"\\x1f8\")\n")
+        .arg("process")
+        .arg("--format")
+        .arg("readable")
+        .arg("src")
+        .arg("out")
+        .expect_success()
+        .snapshot_file(
+            "process_readable_preserves_escape_sequence_out",
+            "out/init.lua",
+        );
+}
+
+#[test]
+fn minify_preserves_escape_sequence() {
+    Context::default()
+        .write_file("src/init.lua", "print(\"\\x1f8\")\n")
+        .arg("minify")
+        .arg("src")
+        .arg("out")
+        .expect_success()
+        .snapshot_file(
+            "minify_preserves_escape_sequence_out",
+            "out/init.lua",
+        );
+}
+
+#[test]
 fn run_convert_command_on_json_file_with_output() {
     Context::default()
         .write_file("data.json", "{ \"property\": true }")
