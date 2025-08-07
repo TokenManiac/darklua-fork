@@ -284,10 +284,11 @@ fn escape(character: char) -> String {
         '\u{B}' => "\\v".to_owned(),
         '\u{C}' => "\\f".to_owned(),
         _ => {
-            if character.len_utf8() == 1 {
-                format!("\\{}", character as u8)
+            let code = character as u32;
+            if code <= u8::MAX as u32 {
+                format!("\\{}", code)
             } else {
-                format!("\\u{{{:x}}}", character as u32)
+                format!("\\u{{{:x}}}", code)
             }
         }
     }
@@ -465,9 +466,9 @@ mod test {
             null("\0") => "'\\0'",
             escape("\u{1B}") => "'\\27'",
             hex_escape_followed_by_digit("\x1f8") => "'\\0318'",
-            extended_ascii("\u{C3}") => "'\\u{c3}'",
+            extended_ascii("\u{C3}") => "'\\195'",
             unicode("\u{25C1}") => "'\\u{25c1}'",
-            escape_degree_symbol("°") => "'\\u{b0}'",
+            escape_degree_symbol("°") => "'\\176'",
             im_cool("I'm cool") => "\"I'm cool\"",
             ends_with_closing_bracket("oof]") => "'oof]'",
             multiline_ends_with_closing_bracket("oof\noof]") => "'oof\\noof]'",

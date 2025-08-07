@@ -272,10 +272,7 @@ fn minify_escapes_hex_followed_by_digit() {
         .arg("input")
         .arg("out")
         .expect_success()
-        .snapshot_file(
-            "minify_escapes_hex_followed_by_digit",
-            "out/init.lua",
-        );
+        .snapshot_file("minify_escapes_hex_followed_by_digit", "out/init.lua");
 }
 
 #[test]
@@ -313,10 +310,7 @@ fn process_dense_escapes_hex_followed_by_digit() {
         .arg("in.lua")
         .arg("out.lua")
         .expect_success()
-        .snapshot_file(
-            "process_dense_escapes_hex_followed_by_digit",
-            "out.lua",
-        );
+        .snapshot_file("process_dense_escapes_hex_followed_by_digit", "out.lua");
 }
 
 #[test]
@@ -329,10 +323,44 @@ fn process_readable_escapes_hex_followed_by_digit() {
         .arg("in.lua")
         .arg("out.lua")
         .expect_success()
-        .snapshot_file(
-            "process_readable_escapes_hex_followed_by_digit",
-            "out.lua",
-        );
+        .snapshot_file("process_readable_escapes_hex_followed_by_digit", "out.lua");
+}
+
+#[test]
+fn minify_escapes_hex_extended_byte() {
+    Context::default()
+        .write_file("input/init.lua", "print(\"\\xc1\")\n")
+        .arg("minify")
+        .arg("input")
+        .arg("out")
+        .expect_success()
+        .snapshot_file("minify_escapes_hex_extended_byte", "out/init.lua");
+}
+
+#[test]
+fn process_dense_escapes_hex_extended_byte() {
+    Context::default()
+        .write_file("in.lua", "print(\"\\xc1\")\n")
+        .arg("process")
+        .arg("--format")
+        .arg("dense")
+        .arg("in.lua")
+        .arg("out.lua")
+        .expect_success()
+        .snapshot_file("process_dense_escapes_hex_extended_byte", "out.lua");
+}
+
+#[test]
+fn process_readable_escapes_hex_extended_byte() {
+    Context::default()
+        .write_file("in.lua", "print(\"\\xc1\")\n")
+        .arg("process")
+        .arg("--format")
+        .arg("readable")
+        .arg("in.lua")
+        .arg("out.lua")
+        .expect_success()
+        .snapshot_file("process_readable_escapes_hex_extended_byte", "out.lua");
 }
 
 #[test]
