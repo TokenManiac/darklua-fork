@@ -284,8 +284,8 @@ fn escape(character: char) -> String {
         '\u{B}' => "\\v".to_owned(),
         '\u{C}' => "\\f".to_owned(),
         _ => {
-            if character.len_utf8() == 1 {
-                format!("\\{}", character as u8)
+            if character.is_ascii() {
+                format!("\\x{:02x}", character as u8)
             } else {
                 format!("\\u{{{:x}}}", character as u32)
             }
@@ -445,8 +445,8 @@ mod test {
             backslash("\\") => "'\\\\'",
             single_quote("'") => "\"'\"",
             double_quote("\"") => "'\"'",
-            null("\0") => "'\\0'",
-            escape("\u{1B}") => "'\\27'",
+            null("\0") => "'\\x00'",
+            escape("\u{1B}") => "'\\x1b'",
             extended_ascii("\u{C3}") => "'\\u{c3}'",
             unicode("\u{25C1}") => "'\\u{25c1}'",
             escape_degree_symbol("°") => "'\\u{b0}'",
@@ -462,6 +462,7 @@ mod test {
 
             large_multiline_with_unicode("\nooof\nooof\nooof\nooof\nooof\nooof\nooof\nooof\noof\u{10FFFF}")
                 => "'\\nooof\\nooof\\nooof\\nooof\\nooof\\nooof\\nooof\\nooof\\noof\\u{10ffff}'",
+            escape_followed_by_digit("\u{1f}8") => "'\\x1f8'",
         );
     }
 }
